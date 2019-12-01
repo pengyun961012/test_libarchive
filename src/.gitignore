@@ -1,0 +1,3 @@
+build/
+tests/
+s3server.log
