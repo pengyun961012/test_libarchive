@@ -31,23 +31,6 @@ int compress(const char *fpath, const struct stat *sb, int tflag, struct FTW *ft
 {
     if(tflag != FTW_D && tflag != FTW_DNR && tflag != FTW_DP)
     {
-    char buff[8192];
-    entry = archive_entry_new(); // Note 2
-    printf("%s\n", fpath);
-    printf("%d\n", tflag);
-    archive_entry_set_pathname(entry, fpath);
-    archive_entry_set_size(entry, sb->st_size); // Note 3
-    archive_entry_set_filetype(entry, AE_IFREG);
-    archive_entry_set_perm(entry, sb->st_mode);
-    archive_write_header(a, entry);
-    int fd = open(fpath, O_RDONLY);
-    int len = read(fd, buff, sizeof(buff));
-    while ( len > 0 ) {
-        archive_write_data(a, buff, len);
-        len = read(fd, buff, sizeof(buff));
-    }
-    close(fd);
-    archive_entry_free(entry);
     }
     return 0;
 }
@@ -62,7 +45,22 @@ int main()
     archive_write_add_filter_gzip(a);
     archive_write_set_format_pax_restricted(a); // Note 1
     archive_write_open_filename(a, absolute_path_tar);
-    nftw(absolute_path, compress, 20, 0);
+    char buff[8192];
+    entry = archive_entry_new(); // Note 2
+    archive_entry_set_pathname(entry, "src/");
+    archive_entry_set_size(entry, sb->st_size); // Note 3
+    archive_entry_set_filetype(entry, AE_IFDIR);
+    archive_entry_set_perm(entry, sb->st_mode);
+    archive_write_header(a, entry);
+    int fd = open("/src", O_RDONLY);
+    int len = read(fd, buff, sizeof(buff));
+    while ( len > 0 ) {
+        archive_write_data(a, buff, len);
+        len = read(fd, buff, sizeof(buff));
+    }
+    close(fd);
+    archive_entry_free(entry);
+    //nftw(absolute_path, compress, 20, 0);
     archive_write_close(a);
     archive_write_free(a);
     return 0;
