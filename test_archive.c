@@ -47,10 +47,12 @@ int main()
     archive_write_open_filename(a, absolute_path_tar);
     char buff[8192];
     entry = archive_entry_new(); // Note 2
+    struct stat sb;
+    lstat("src/", &sb);
     archive_entry_set_pathname(entry, "src/");
-    archive_entry_set_size(entry, sb->st_size); // Note 3
+    archive_entry_set_size(entry, sb.st_size); // Note 3
     archive_entry_set_filetype(entry, AE_IFDIR);
-    archive_entry_set_perm(entry, sb->st_mode);
+    archive_entry_set_perm(entry, sb.st_mode);
     archive_write_header(a, entry);
     int fd = open("/src", O_RDONLY);
     int len = read(fd, buff, sizeof(buff));
