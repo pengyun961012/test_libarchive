@@ -29,8 +29,12 @@ struct archive_entry *entry;
 
 int compress(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
+    if(tflag != FTW_D && tflag != FTW_DNR && tflag != FTW_DP)
+    {
     char buff[8192];
     entry = archive_entry_new(); // Note 2
+    printf("%s\n", fpath);
+    printf("%d\n", tflag);
     archive_entry_set_pathname(entry, fpath);
     archive_entry_set_size(entry, sb->st_size); // Note 3
     archive_entry_set_filetype(entry, AE_IFREG);
@@ -44,6 +48,7 @@ int compress(const char *fpath, const struct stat *sb, int tflag, struct FTW *ft
     }
     close(fd);
     archive_entry_free(entry);
+    }
     return 0;
 }
 
