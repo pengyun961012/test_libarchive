@@ -33,6 +33,7 @@ int compress(const char *fpath, const struct stat *sb, int tflag, struct FTW *ft
         entry = archive_entry_new(); // Note 2
         char *starter = strstr(fpath, "src");
         archive_entry_set_pathname(entry, starter);
+        printf("%s\n", starter);
         archive_entry_set_size(entry, sb->st_size); // Note 3
         if (tflag != FTW_D && tflag != FTW_DNR && tflag != FTW_DP)
             archive_entry_set_filetype(entry, AE_IFREG);
