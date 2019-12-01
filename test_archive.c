@@ -1,12 +1,13 @@
+#define _XOPEN_SOURCE 500
 #include <ctype.h>
 #include <stdarg.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <fuse.h>
 #include <getopt.h>
 #include <limits.h>
 #include <stdio.h>
+#include <ftw.h>
 #include <stdlib.h>
 #include <linux/limits.h>
 #include <string.h>
@@ -30,12 +31,12 @@ int compress(const char *fpath, const struct stat *sb, int tflag, struct FTW *ft
 {
     char buff[8192];
     entry = archive_entry_new(); // Note 2
-    archive_entry_set_pathname(entry, *fpath);
+    archive_entry_set_pathname(entry, fpath);
     archive_entry_set_size(entry, sb->st_size); // Note 3
     archive_entry_set_filetype(entry, AE_IFREG);
     archive_entry_set_perm(entry, sb->st_mode);
     archive_write_header(a, entry);
-    int fd = open(*fpath, O_RDONLY);
+    int fd = open(fpath, O_RDONLY);
     int len = read(fd, buff, sizeof(buff));
     while ( len > 0 ) {
         archive_write_data(a, buff, len);
@@ -43,6 +44,7 @@ int compress(const char *fpath, const struct stat *sb, int tflag, struct FTW *ft
     }
     close(fd);
     archive_entry_free(entry);
+    return 0;
 }
 
 int main()
@@ -58,4 +60,5 @@ int main()
     nftw(absolute_path, compress, 20, 0);
     archive_write_close(a);
     archive_write_free(a);
+    return 0;
 }

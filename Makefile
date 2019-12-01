@@ -1,6 +1,5 @@
 default: test_archive
-test_binary: 
-	gcc -Wall -Werror test_archive.c -o test_archive -larchive
-
+test_archive: 
+	gcc -Wall -Werror -o test_archive test_archive.c -larchive
 clean: 
 	rm test_archive
